@@ -1,0 +1,83 @@
+
+  <script src="/socket.io/socket.io.js"></script>
+
+<script>
+    var socket = io();
+    socket.on('connect',function(){ 
+      // Send ehlo event right after connect:
+      socket.emit('userId', 'vikram');
+    });
+  
+    socket.on('slike',function(data){
+          console.log('slike',data);
+    });
+  
+    socket.on('disconnect',function(data){
+      socket.emit('removal',{'id':'1234'});
+    })
+  
+  
+  </script>
+
+<body>
+    <div class="row mt-5">
+        <div class="col-md-6 m-auto">
+          <div class="card card-body">
+            <h1 class="text-center mb-3"><i class="fas fa-sign-in-alt"></i>  Dashboard</h1>
+            <p class="lead mb-3">Welcome <%= name %></p>
+            <% include ./partials/messages %>                  
+            <form action="/users/login" method="POST">
+              <div class="form-group">
+                <img src="http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png">
+              </div>
+              <div class="form-group">
+                    <a href="/users/register">Like</a>
+                    <a href="/users/register">Super Like</a>
+                    <a href="/users/register">Block</a>
+
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">Login</button>
+              <br>
+            </form>
+            <p class="lead mt-4">
+              <a href="/users/logout">Logout</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      </body>
+
+
+
+<!-- <a href="/users/logout" class="btn btn-secondary">Logout</a> -->
+<button onclick="notifyMe()">Notify me!</button>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+ if (!Notification) {
+  alert('Desktop notifications not available in your browser. Try Chromium.');
+  return;
+ }
+
+ if (Notification.permission !== 'granted')
+  Notification.requestPermission();
+});
+
+
+function notifyMe() {
+ if (Notification.permission !== 'granted')
+  Notification.requestPermission();
+ else {
+  var notification = new Notification('Notification title', {
+   icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
+   body: 'Hey there! You\'ve been notified!',
+  });
+  notification.onclick = function() {
+   window.open('http://stackoverflow.com/a/13328397/1269037');
+  };
+ }
+}
+
+</script>
