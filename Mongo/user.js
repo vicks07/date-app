@@ -136,13 +136,14 @@ const CheckExists = (user)=>{
 //Method to log Like users.
 
 const Like = (user)=>{
+    console.log(user);
     return new Promise((resolve,reject)=>{
         MongoClient.connect(connection,{useNewUrlParser:true,useUnifiedTopology: true},(err,client)=>{
             if(err){
                 reject('Error');
             }
             let db = client.db('quill');
-            db.collection('users').updateOne({_id:ObjectId(user.id)},{$addToSet:{likedList:user.likedId,date:new Date()}}).then(result=>{
+            db.collection('users').updateOne({_id:ObjectId(user.id)},{$addToSet:{likedList:{likeId:ObjectId(user.likedId),date:new Date()}}}).then(result=>{
                 resolve(result);
             }).catch(err=>{
                 reject('Error');
@@ -160,7 +161,7 @@ const SLike = (user)=>{
                 reject('Error');
             }
             let db = client.db('quill');
-            db.collection('users').updateOne({_id:ObjectId(user.id)},{$addToSet:{slikedList:user.slikedId,date:new Date()}}).then(result=>{
+            db.collection('users').updateOne({_id:ObjectId(user.id)},{$addToSet:{slikedList:{slikeId:ObjectId(user.slikedId),date:new Date()}}}).then(result=>{
                 resolve(result);
             }).catch(err=>{
                 reject('Error');

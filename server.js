@@ -172,6 +172,7 @@ const {name,email,password,password2} = req.body;
 app.post('/like',auth,async(req,res)=>{
     let resp = await user.Like({id:req.body.id,likeId:req.body.likeId});
     io.to(userHash[req.body.likeId]).emit('like',{data:'A user has liked your image'});
+    return res.status(200).send(resp);
 })
 
 app.post('/slike',auth,async(req,res)=>{
@@ -180,6 +181,7 @@ app.post('/slike',auth,async(req,res)=>{
   let userD = await user.GetUser({id:req.body.id,flag:true});
   io.to(userHash[req.body.slikedId]).emit('slike',{data:'A user has liked your image',user:userD});
   //io.to(req.body.id).emit('slike',{title:'Super Like',body:'A user has liked your image'});
+  return res.status(200).send(resp);
   
 })
 
