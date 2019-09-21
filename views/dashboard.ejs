@@ -5,15 +5,18 @@
     var socket = io();
     socket.on('connect',function(){ 
       // Send ehlo event right after connect:
-      socket.emit('userId', 'vikram');
+      socket.emit('userId', sessionStorage.getItem('userId'));  //Emit the unqiue id of the user stored in the session
     });
   
-    socket.on('slike',function(data){
+    socket.on('like',function(data){
+
+      //The event for both Like and Super Like are the same, what differs is the paramters being sent.
           console.log('slike',data);
+          notifyMe(data);
     });
-  
+    
     socket.on('disconnect',function(data){
-      socket.emit('removal',{'id':'1234'});
+      socket.emit('removal',sessionStorage.getItem('userId'));
     })
   
   
@@ -25,18 +28,27 @@
           <div class="card card-body">
             <h1 class="text-center mb-3"><i class="fas fa-sign-in-alt"></i>  Dashboard</h1>
             <p class="lead mb-3">Welcome <%= name %></p>
+
+            <% var token1 = token  %>
+            <% console.log('token',token) %>
+            <% var id = id  %>
+            <script>
+                  // localStorage.setItem('info', JSON.stringify({'token': token}));
+                  // sessionStorage.setItem("token", JSON.stringify(token1));
+                  // sessionStorage.setItem("id", id);         
+            </script>
             <% include ./partials/messages %>                  
             <form action="/users/login" method="POST">
               <div class="form-group">
-                <img src="http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png">
+                <img src="../user3.png">
+                <a href=""><i class="fas fa-angle-right"></i> Next</a>
               </div>
               <div class="form-group">
-                    <a href="/users/register">Like</a>
-                    <a href="/users/register">Super Like</a>
-                    <a href="/users/register">Block</a>
-
+                  <input type="button" class="btn btn-warning btn-block" onclick="Like()" value="Like"/>
+                  <input type="button" class="btn btn-primary btn-block" onclick="SLike()" value="Super Like"/>
+                  <input type="button" class="btn btn-danger btn-block" onclick="Block()" value="Block"/>
               </div>
-              <button type="submit" class="btn btn-primary btn-block">Login</button>
+              <!-- <button type="submit" class="btn btn-primary btn-block">Login</button> -->
               <br>
             </form>
             <p class="lead mt-4">
@@ -50,7 +62,7 @@
 
 
 <!-- <a href="/users/logout" class="btn btn-secondary">Logout</a> -->
-<button onclick="notifyMe()">Notify me!</button>
+<!-- <button onclick="notifyMe()">Notify me!</button> -->
 
 
 <script>
@@ -66,13 +78,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-function notifyMe() {
+function notifyMe(data) {
  if (Notification.permission !== 'granted')
   Notification.requestPermission();
  else {
   var notification = new Notification('Notification title', {
    icon: 'http://cdn.sstatic.net/stackexchange/img/logos/so/so-icon.png',
-   body: 'Hey there! You\'ve been notified!',
+   body: data.data,
   });
   notification.onclick = function() {
    window.open('http://stackoverflow.com/a/13328397/1269037');
@@ -80,4 +92,34 @@ function notifyMe() {
  }
 }
 
+
+function Like(){
+  //Send Data regarding the logged in user and the id of the user whose image is being liked
+}
+
+function SLike(){
+  //Send Data regarding the logged in user and the id of the user whose image is being super liked
+}
+
+function Block(){
+  //Send Data regarding the logged in user and the id of the user who is being blocked
+}
+
+
 </script>
+
+
+ <!-- let xmlReq = new XMLHttpRequest();
+    xmlReq.open("POST",userUrl,false);
+    xmlReq.setRequestHeader("Content-type", "application/json");
+    let jsonValue = {
+		"senderId": userId,
+		"userDetails":{
+            "jobtypeid": `${jobTypeId}`,
+		    "jobtype": `${jobType}`
+		}
+    }
+    xmlReq.send(JSON.stringify(jsonValue));
+    
+    //let result = JSON.parse(xmlReq.responseText);
+    let result = JSON.parse(xmlReq.responseText); -->

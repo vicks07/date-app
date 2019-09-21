@@ -1,6 +1,6 @@
 const {MongoClient,ObjectId} = require('mongodb');
 
-const connection = '"mongodb://localhost:27017/"';
+const connection = process.env.MONGODB_URI || "mongodb://localhost:27017/";
 const crypto = require('crypto');
 const secret = 'quillApp';
 
@@ -44,6 +44,7 @@ const Login = (user)=>{
     })
 }
 
+//Get User information whose unique id is being passed.
 const GetUser = (user)=>{
     return new Promise((resolve,reject)=>{
         MongoClient.connect(connection,{useNewUrlParser:true,useUnifiedTopology: true},(err,client)=>{
@@ -51,7 +52,19 @@ const GetUser = (user)=>{
                 reject('Error');
             }
             let db = client.db('quill');
-            db.collection('users').findOne({_id:ObjectId(user.id)}).project({password:0}).then(result=>{
+            let projection = {
+                    
+            }
+            if(user.flag!==undefined){
+                projection['password'] = 0;
+                projection['blockedList'] = 0;
+                projection['likedList'] = 0;
+                projection['sLikedList'] = 0;
+            }
+            else{
+                projection['password'] = 0;
+            }
+            db.collection('users').find({_id:ObjectId(user.id)}).project(projection).toArray().then(result=>{
                 resolve(result);
             }).catch(err=>{
                 reject('Error');
@@ -60,6 +73,7 @@ const GetUser = (user)=>{
     })
 }
 
+//Displays the users to be displayted to the logged in user
 const DisplayUsers = (user)=>{
     return new Promise((resolve,reject)=>{
         MongoClient.connect(connection,{useNewUrlParser:true,useUnifiedTopology: true},(err,client)=>{
@@ -67,7 +81,7 @@ const DisplayUsers = (user)=>{
                 reject('Error');
             }
             let db = client.db('quill');
-            db.collection('users').find({_id:{$ne:ObjectId(user.id)}}).project({password:0}).then(result=>{
+            db.collection('users').find({$and:[{_id:{$ne:ObjectId(user.id)}},{_id:{$nin:user.blockedList}}]}).project({password:0}).toArray().then(result=>{
                 resolve(result);
             }).catch(err=>{
                 reject('Error');
@@ -76,7 +90,7 @@ const DisplayUsers = (user)=>{
     })
 }
 
-
+//Generate Hash value to encrpty plain text password
 const GenerateHash = (plainText)=>{
     return crypto.createHmac('sha256', secret)
                    .update(plainText)
@@ -85,6 +99,7 @@ const GenerateHash = (plainText)=>{
     //console.log(hash);
 }
 
+//Method to log blocked users.
 const BlockUser = (user)=>{
     return new Promise((resolve,reject)=>{
         MongoClient.connect(connection,{useNewUrlParser:true,useUnifiedTopology: true},(err,client)=>{
@@ -92,7 +107,7 @@ const BlockUser = (user)=>{
                 reject('Error');
             }
             let db = client.db('quill');
-            db.collection('users').updateOne({_id:ObjectId(user.id)},{$addToSet:{blockedList:user.blockId,date:new Date()}}).then(result=>{
+            db.collection('users').updateOne({_id:ObjectId(user.id)},{$addToSet:{blockedList:{blockId:ObjectId(user.blockId),date:new Date()}}}).then(result=>{
                 resolve(result);
             }).catch(err=>{
                 reject('Error');
@@ -101,6 +116,7 @@ const BlockUser = (user)=>{
     })
 }
 
+//To check if a users is already registered
 const CheckExists = (user)=>{
     return new Promise((resolve,reject)=>{
         MongoClient.connect(connection,{useNewUrlParser:true,useUnifiedTopology: true},(err,client)=>{
@@ -117,9 +133,7 @@ const CheckExists = (user)=>{
     })
 }
 
-const CheckBlocked = (user)=>{
-        
-}
+//Method to log Like users.
 
 const Like = (user)=>{
     return new Promise((resolve,reject)=>{
@@ -137,6 +151,7 @@ const Like = (user)=>{
     })
 }
 
+//Method to log Super Liked users.
 
 const SLike = (user)=>{
     return new Promise((resolve,reject)=>{
@@ -164,8 +179,9 @@ module.exports ={
     Login,
     Register,
     CheckExists,
-    CheckBlocked,
+    BlockUser,
     Like,
     SLike,
-    GetUser
+    GetUser,
+    DisplayUsers
 }
