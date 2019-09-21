@@ -46,8 +46,10 @@ app.get('/', function(req, res){
   
 let userHash = {} //An object to maintain the socket connection with respect to the Object ID.
 
-http.listen(3000, function(){
-  console.log('listening on *:3000');
+const port = process.env.PORT || 3000;
+
+http.listen(port, function(){
+  console.log(`listening on *:${port}`);
 });
 
 io.on('connection', function(socket){
